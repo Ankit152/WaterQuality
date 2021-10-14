@@ -21,36 +21,37 @@ y = to_categorical(y)
 print(x.shape,y.shape)
 
 print("[INFO] Dividing the dataset into train and test....")
-xtrain, xtest, ytrain, ytest = tts(x,y,test_size=0.1,random_state=42,stratify=y)
+xtrain, xtest, ytrain, ytest = tts(x,y,test_size=0.2,random_state=42,stratify=y)
 print(xtrain.shape,ytrain.shape)
 print(xtest.shape,ytest.shape)
 print("[INFO] Dividing is done....")
 
-print("Making the model....")
+print("[INFO] Making the model....")
 
 model = Sequential(name="WaterPotability")
 model.add(Dense(128,input_shape=(9,),activation='relu'))
-model.add(Dropout(0.25))
+model.add(Dropout(0.2))
 model.add(Dense(128,activation='relu'))
-model.add(Dropout(0.25))
+model.add(Dropout(0.2))
+model.add(Dense(128,activation="relu"))
 model.add(Dense(2,activation="softmax"))
 
 
 checkpointer = ModelCheckpoint('WaterPotability.h5', save_best_only=True,monitor='val_loss',mode='auto')
 
-print("Model architecture is done....")
+print("[INFO] Model architecture is done....")
 model.compile(loss = "categorical_crossentropy", optimizer="adam",metrics=["accuracy"])
 print("Model compiled....")
 print("Training is starting....")
 start = time.time()
-hist = model.fit(xtrain,ytrain,batch_size=16,epochs=15,validation_data=(xtest, ytest),callbacks=[checkpointer])
+hist = model.fit(xtrain,ytrain,batch_size=8,epochs=100,validation_data=(xtest, ytest),callbacks=[checkpointer])
 print("Model training is over....")
 print("Total Time taken: ",time.time()-start)
 print("Model saved....")
 
 
 # plotting the figures
-print("Plotting the figures....")
+print("[INFO] Plotting the figures....")
 plt.figure(figsize=(15,10))
 plt.plot(hist.history['accuracy'],c='b',label='train')
 plt.plot(hist.history['val_accuracy'],c='r',label='validation')
@@ -69,10 +70,10 @@ plt.xlabel("EPOCHS")
 plt.ylabel("LOSS")
 plt.legend(loc='upper right')
 plt.savefig('./img/loss.png')
-print("Figures saved in the disk....")
+print("[INFO] Figures saved in the disk....")
 
 model=load_model("WaterPotability.h5")
 # testing the model
-print("Testing the model....")
-print("The result obtained is...\n")
+print("[INFO] Testing the model....")
+print("[INFO] The result obtained is...\n")
 model.evaluate(xtest,ytest)
